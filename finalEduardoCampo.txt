@@ -1,0 +1,117 @@
+/*
+Camada 6
+Jesus Eduardo Campo Alvarez */
+
+/*Consignas
+1. Obtener el listado de posibles participantes
+Tomando como base el siguiente archivo JSON, deberán leer el archivo y parsearlo para obtener el listado de autos que desean participar de la carrera.
+Resultado esperado: variable conteniendo un array con todos los autos disponibles.*/
+
+const fs = require('fs')
+let autosJSON = fs.readFileSync( __dirname + '/AUTOS.json', 'utf8')
+let autosParseados = JSON.parse(autosJSON)
+
+//console.log(autosParseados)
+
+/*2. Crear un objeto literal que represente la carrera
+Este objeto contendrá, una propiedad con el listado de autos y las funcionalidades que nos solicitan a continuación:
+A.	Agregar una propiedad llamada autos que contenga los autos obtenidos en el punto anterior.
+B.	Agregar una propiedad llamada autosPorTanda que contenga el valor 5. Este valor representará la cantidad máxima de autos por tanda.
+C.	Agregar un método autosHabilitados, que permita consultar los autos habilitados, es decir, que devuelva una lista de los autos que no estén sancionados.
+Resultado esperado: un array con los autos habilitados para correr.*/
+
+let carreras = {
+    autos: autosParseados,
+    autosPorTanda: 5,
+    autosHabilitados: function () {
+        return this.autos.filter(elemto => elemto.sancionado === false)
+    },
+    //D.	Agregar un método listarAutos que reciba como parámetro un array de autos y los imprima por consola.
+    //Este método deberá imprimir por cada elemento:
+    //○	La placa o patente.
+    //○	El piloto
+    //○	El peso del auto
+    //○	“sancionado” → En caso de ser true la propiedad sancionado 
+    //“puede correr” → Caso contrario
+    //Resultado esperado: un mensaje por consola por cada auto con el siguiente formato: “Patente: XXXXXX, peso en kg: XXX, estado: sancionado / puede correr”.
+    //Ej 1: “Piloto: Leandro Ezequiel, patente: ABC123, peso en Kg: 267, estado: puede correr”
+    //Ej 2: “Piloto: Esteban Piazza ,Patente: EFG567, peso en Kg: 357, estado: sancionado” 
+    listarAutos: function () {
+        let autoDatos = this.autos.forEach(elemto => {
+            let estadoAuto = this.autos.sancionado ? "Sancionado" : "Puede correr";
+            console.log("Piloto: " + elemto.piloto + ", " + "patente: " + elemto.patente + ", " + "peso en Kg: " + elemto.peso +  ", estado: " + estadoAuto)
+        })
+        return autoDatos;
+    },
+    //E.	Agregar un método buscarPorPiloto que permita buscar el auto en función de su piloto.
+    //○	Este método debe devolver un auto en caso de encontrar el piloto en el array de la propiedad autos.
+    //Resultado esperado: el auto que coincida con el piloto ingresado como parámetro.
+    buscarPorPiloto: function (nombrePiloto) {
+        return this.autos.find(elemto => elemto.piloto === nombrePiloto)
+    },
+    //F.	Agregar un método buscarPorAceleracion que permite filtrar los autos habilitados, siempre y cuando su propiedad aceleración sea mayor o igual a la aceleración enviada como argumento.
+    //○	Este método debe usar autosHabilitados.
+    // Resultado esperado: un array con los autos que cumplan las condiciones mencionadas.
+    buscarPorAceleracion: function (aceleration) {
+        let autoHabEncontrado = this.autosHabilitados();
+        return autoHabEncontrado.filter(elemto => elemto.aceleracion >= aceleration)
+    },
+    //G.	Agregar un método que permita ordenar por ángulo de giro de menor a mayor según la velocidad de cada auto  y devolver un array ordenado.
+    //Resultado esperado: un array de autos ordenado por ángulo de giro de menor a mayor.
+    ordenarPorAngulo: function () {
+        return this.autos.sort((a,b) => a.anguloDeGiro - b.anguloDeGiro)
+    },
+    //H.	Agregar un método generarTanda que permita retornar un array de autos, que cumpla con las siguientes condiciones:
+    //○	únicamente autos habilitados
+    //○	cilindradas del auto menor o igual a un valor enviado como argumento.
+    //○	peso  del auto menor o igual a un valor enviado como argumento
+    //Resultado esperado: un array con los autos que cumplan las condiciones especificadas y tenga como máximo la cantidad de autos expresada en la propiedad autosPorTanda del objeto carrera.
+    generarTanda: function (cilindro, pesoAuto) {
+        let autoHabEncontrado = this.autosHabilitados();
+        let autosTanda = autoHabEncontrado.filter(elemento => 
+            elemento.cilindrada <= cilindro 
+            && elemento.peso <= pesoAuto )
+        return autosTanda
+    },
+    //I.	Agregar un método que permita calcularPodio, el mismo deberá calcular al ganador y los siguientes dos puestos en función de su puntaje.
+    //○	El podio debe surgir a partir de la tanda generada.
+    //○	Los primeros tres autos con mayor puntaje conformaran el podio
+    //Resultado esperado: imprimir por consola el piloto y el puntaje del podio diferenciando primer, segundo y tercer puesto.
+    //Ej:
+	// “El ganador es: Leandro Ezequiel, con un puntaje de: 70;
+	//el segundo puesto es para: Martin Cejas, con un puntaje de: 55
+	//y el tercer puesto es para: Nicolas Lopez, con un puntaje de: 52”
+    calcularPodio: function (cilindro, pesoAuto) {
+        let tanda = this.generarTanda(cilindro, pesoAuto).sort((a,b) => b.puntaje - a.puntaje)
+        console.log("El ganador es: " + tanda[0].piloto + ", " + "con un puntaje de: " + tanda[0].puntaje);
+	    console.log("El segundo puesto es: " + tanda[1].piloto + ", " + "con un puntaje de: " + tanda[1].puntaje)
+	    console.log("El tercer puesto es: " + tanda[2].piloto + ", " + "con un puntaje de: " + tanda[2].puntaje)
+    }
+
+}
+
+//c.
+//console.table(carreras.autosHabilitados())
+
+//d.
+//console.log(carreras.listarAutos())
+
+//e.
+//console.log(carreras.buscarPorPiloto("Kerry Creed"))
+//console.log(carreras.buscarPorPiloto("Pepillo Balfe"))
+
+//f.
+//console.log(carreras.buscarPorAceleracion(1.5))
+//console.table(carreras.buscarPorAceleracion(0.9))
+
+//g.
+//console.log(carreras.ordenarPorAngulo())
+//console.table(carreras.ordenarPorAngulo())
+
+//h.
+//console.log(carreras.generarTanda(5000, 500))
+//console.table(carreras.generarTanda(5000, 500))
+//console.table(carreras.generarTanda(4000, 300))
+
+//i.
+//console.table(carreras.calcularPodio(5000, 500))
